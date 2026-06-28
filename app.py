@@ -6,10 +6,18 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for, f
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import event
 from argon2 import PasswordHasher
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 ph = PasswordHasher()
-ADMIN_USERNAME = 'admin'
-ADMIN_PASSWORD_HASH = '$argon2id$v=19$m=65536,t=3,p=4$/pCil7SDH0jbWFyr0lHhVA$/NKMJ+Vr+5R9/sOkNbrKaMU5buNY2l7OT/QKZrFX2/A'
+ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'admin')
+ADMIN_PASSWORD_HASH = os.environ.get(
+    'ADMIN_PASSWORD_HASH',
+    '$argon2id$v=19$m=65536,t=3,p=4$/pCil7SDH0jbWFyr0lHhVA$/NKMJ+Vr+5R9/sOkNbrKaMU5buNY2l7OT/QKZrFX2/A'
+)
+
 
 def login_required(f):
     @wraps(f)
@@ -282,4 +290,7 @@ else:
         db.create_all()
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    flask_debug = os.environ.get('FLASK_DEBUG', 'True').lower() == 'true'
+    host = os.environ.get('HOST', '0.0.0.0')
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=flask_debug, host=host, port=port)
