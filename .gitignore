@@ -6,5 +6,7 @@ dist/
 wheels/
 *.egg-info
 
+Price-Change-Automation/*
+
 # Virtual environments
 .venv
