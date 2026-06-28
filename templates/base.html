@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}TechPrice | Frosted Shelf{% endblock %}</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Liquid Glass Background Layers -->
+    <div class="bg-layer bg-layer-1"></div>
+    <div class="bg-layer bg-layer-2"></div>
+    <div class="bg-layer bg-layer-3"></div>
+
+    <!-- Navigation -->
+    <nav class="glass-nav">
+        <div class="nav-container">
+            <a href="{{ url_for('index') }}" class="logo">
+                <i class="fa-solid fa-layer-group"></i>
+                <span>TechPrice</span>
+            </a>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">
+                    <i class="fa-solid fa-grid-2"></i> Shelf
+                </a>
+                <a href="{{ url_for('admin') }}" class="nav-link {% if request.endpoint == 'admin' %}active{% endif %}">
+                    <i class="fa-solid fa-sliders"></i> Admin
+                </a>
+                {% if session.get('logged_in') %}
+                <a href="{{ url_for('logout') }}" class="nav-link logout-btn">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+                </a>
+                {% endif %}
+            </div>
+            <button class="mobile-menu-btn" aria-label="Menu">
+                <i class="fa-solid fa-bars-staggered"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu">
+        <a href="{{ url_for('index') }}"><i class="fa-solid fa-grid-2"></i> Shelf</a>
+        <a href="{{ url_for('admin') }}"><i class="fa-solid fa-sliders"></i> Admin</a>
+        {% if session.get('logged_in') %}
+        <a href="{{ url_for('logout') }}" class="logout-btn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+        {% endif %}
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass-footer">
+        <div class="footer-content">
+            <p><i class="fa-solid fa-code"></i> Built with Flask & Frosted Liquid Glass</p>
+            <p class="footer-sub">Price tracking automation ready</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

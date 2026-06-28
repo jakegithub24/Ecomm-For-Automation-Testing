@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} | TechPrice{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<nav class="breadcrumb-glass">
+    <a href="{{ url_for('index') }}"><i class="fa-solid fa-house"></i> Home</a>
+    <i class="fa-solid fa-chevron-right"></i>
+    <span>{{ product.name }}</span>
+</nav>
+
+<!-- Product Hero -->
+<section class="detail-hero">
+    <div class="detail-glass">
+        <div class="detail-image-section">
+            <div class="detail-image-wrapper">
+                <img src="{{ product.image_url or 'https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=800&h=800&fit=crop' }}" 
+                     alt="{{ product.name }}" class="detail-image">
+                <div class="detail-image-glow"></div>
+            </div>
+        </div>
+
+        <div class="detail-info-section">
+            <div class="detail-meta">
+                <span class="detail-brand">{{ product.brand }}</span>
+                <span class="detail-category">{{ product.category }}</span>
+            </div>
+
+            <h1 class="detail-title">{{ product.name }}</h1>
+
+            <div class="detail-state-badge state-{{ 'in-stock' if product.state == '{{price}}' else product.state.replace(' ', '-') }}">
+                {% if product.state == '{{price}}' %}
+                    <i class="fa-solid fa-check-circle"></i> In Stock
+                {% elif product.state == 'coming soon' %}
+                    <i class="fa-solid fa-clock"></i> Coming Soon
+                {% elif product.state == 'out of stock' %}
+                    <i class="fa-solid fa-circle-xmark"></i> Out of Stock
+                {% elif product.state == 'discontinued' %}
+                    <i class="fa-solid fa-ban"></i> Discontinued
+                {% endif %}
+            </div>
+
+            <p class="detail-desc">{{ product.description or 'No description available.' }}</p>
+
+            <div class="detail-price-block">
+                {% if product.state == 'coming soon' %}
+                    <span class="detail-price-coming">Coming Soon</span>
+                {% elif product.state == 'discontinued' %}
+                    <span class="detail-price-discontinued">Discontinued</span>
+                {% elif product.state == 'out of stock' %}
+                    <span class="detail-price-current">${{ "%.2f"|format(product.price) }}</span>
+                    <span class="detail-price-status">Currently Out of Stock</span>
+                {% else %}
+                    <span class="detail-price-current">${{ "%.2f"|format(product.price) }}</span>
+                    {% if product.original_price and product.original_price > product.price %}
+                        <span class="detail-price-original">${{ "%.2f"|format(product.original_price) }}</span>
+                        <span class="detail-price-save">
+                            <i class="fa-solid fa-arrow-trend-down"></i> Save ${{ "%.2f"|format(product.original_price - product.price) }} ({{ product.discount_percent }}%)
+                        </span>
+                    {% endif %}
+                {% endif %}
+            </div>
+
+            <div class="detail-actions">
+                {% if product.url %}
+                <a href="{{ product.url }}" target="_blank" class="btn-store">
+                    <i class="fa-solid fa-external-link"></i>
+                    <span>Visit Store</span>
+                </a>
+                {% endif %}
+                <a href="{{ url_for('admin') }}" class="btn-admin">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span>Edit in Admin</span>
+                </a>
+            </div>
+
+            <div class="detail-meta-footer">
+                <span><i class="fa-solid fa-clock"></i> Added {{ product.created_at[:10] if product.created_at else 'N/A' }}</span>
+                <span><i class="fa-solid fa-rotate"></i> Updated {{ product.updated_at[:10] if product.updated_at else 'N/A' }}</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Price History Chart -->
+<section class="chart-section">
+    <div class="chart-glass">
+        <div class="chart-header">
+            <h2><i class="fa-solid fa-chart-line"></i> Price History</h2>
+            <div class="chart-legend">
+                <span class="legend-item"><span class="legend-dot"></span> Price tracked over time</span>
+            </div>
+        </div>
+        <div class="chart-wrapper">
+            <canvas id="priceChart"></canvas>
+        </div>
+        {% if not history %}
+        <div class="chart-empty">
+            <i class="fa-solid fa-chart-simple"></i>
+            <p>No price history available yet. The automation script will start tracking soon.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- History Table -->
+<section class="history-section">
+    <div class="history-glass">
+        <div class="history-header">
+            <h2><i class="fa-solid fa-table-list"></i> Price Log</h2>
+        </div>
+        <div class="history-responsive">
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Price</th>
+                        <th>Change</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in history %}
+                    <tr>
+                        <td class="history-date">
+                            <i class="fa-regular fa-calendar"></i>
+                            {{ entry.timestamp[:10] if entry.timestamp else 'N/A' }}
+                            <span class="history-time">{{ entry.timestamp[11:16] if entry.timestamp else '' }}</span>
+                        </td>
+                        <td class="history-price">${{ "%.2f"|format(entry.price) }}</td>
+                        <td class="history-change">
+                            {% if loop.index0 > 0 %}
+                                {% set prev = history[loop.index0 - 1] %}
+                                {% if entry.price < prev.price %}
+                                    <span class="change-down"><i class="fa-solid fa-arrow-down"></i> ${{ "%.2f"|format(prev.price - entry.price) }}</span>
+                                {% elif entry.price > prev.price %}
+                                    <span class="change-up"><i class="fa-solid fa-arrow-up"></i> ${{ "%.2f"|format(entry.price - prev.price) }}</span>
+                                {% else %}
+                                    <span class="change-same"><i class="fa-solid fa-minus"></i> No change</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="change-initial"><i class="fa-solid fa-flag"></i> Initial</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3" class="history-empty-cell">
+                            <i class="fa-solid fa-spinner fa-spin"></i> Waiting for automation to log first price...
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- Related Products -->
+<section class="related-section">
+    <div class="section-header">
+        <h2><i class="fa-solid fa-shuffle"></i> More from {{ product.category }}</h2>
+    </div>
+    <div class="related-grid" id="related-grid">
+        <!-- Populated by JS -->
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    const priceHistory = {{ history|tojson }};
+    const currentProduct = {{ product|tojson }};
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Render price chart
+        if (priceHistory && priceHistory.length > 0) {
+            renderChart(priceHistory);
+        }
+
+        // Load related products
+        loadRelatedProducts(currentProduct.category, currentProduct.id);
+    });
+
+    function renderChart(history) {
+        const ctx = document.getElementById('priceChart').getContext('2d');
+        const labels = history.map(h => h.timestamp ? h.timestamp.slice(0, 10) : '');
+        const data = history.map(h => h.price);
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Price ($)',
+                    data: data,
+                    borderColor: '#99e1d9',
+                    backgroundColor: 'rgba(153, 225, 217, 0.1)',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#1d1d1d',
+                    pointBorderColor: '#99e1d9',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 8,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(29, 29, 29, 0.9)',
+                        titleColor: '#e5bddf',
+                        bodyColor: '#fff',
+                        borderColor: 'rgba(153, 225, 217, 0.3)',
+                        borderWidth: 1,
+                        padding: 12,
+                        cornerRadius: 12,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return '$' + context.parsed.y.toFixed(2);
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { color: 'rgba(255,255,255,0.5)', font: { family: 'Outfit' } }
+                    },
+                    y: {
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { 
+                            color: 'rgba(255,255,255,0.5)', 
+                            font: { family: 'Outfit' },
+                            callback: function(value) { return '$' + value; }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    async function loadRelatedProducts(category, excludeId) {
+        try {
+            const res = await fetch('/api/products');
+            const products = await res.json();
+            const related = products.filter(p => p.category === category && p.id !== excludeId).slice(0, 3);
+
+            const grid = document.getElementById('related-grid');
+            if (related.length === 0) {
+                grid.innerHTML = '<p class="related-empty">No related products found.</p>';
+                return;
+            }
+
+            grid.innerHTML = related.map(p => `
+                <a href="/product/${p.id}" class="related-card">
+                    <div class="related-glass">
+                        <img src="${p.image_url || 'https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=400&h=400&fit=crop'}" alt="${p.name}">
+                        <div class="related-info">
+                            <span class="related-brand">${p.brand}</span>
+                            <h4>${p.name}</h4>
+                            <span class="related-price">${p.price ? '$' + p.price.toFixed(2) : 'N/A'}</span>
+                        </div>
+                    </div>
+                </a>
+            `).join('');
+        } catch (e) {
+            console.error('Failed to load related products:', e);
+        }
+    }
+</script>
+{% endblock %}

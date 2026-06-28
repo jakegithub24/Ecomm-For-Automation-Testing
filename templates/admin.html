@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel | TechPrice{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.css">
+{% endblock %}
+
+{% block content %}
+<!-- Admin Header -->
+<section class="admin-header">
+    <div class="admin-glass">
+        <div class="admin-title-group">
+            <h1><i class="fa-solid fa-sliders"></i> Admin Panel</h1>
+            <p>Manage products, prices, and inventory states</p>
+        </div>
+        <button class="admin-add-btn" id="open-add-modal">
+            <i class="fa-solid fa-plus"></i>
+            <span>Add Product</span>
+        </button>
+    </div>
+</section>
+
+<!-- Dashboard Stats -->
+<section class="admin-stats">
+    <div class="stat-glass stat-total">
+        <div class="stat-icon"><i class="fa-solid fa-cube"></i></div>
+        <div class="stat-info">
+            <span class="stat-value" id="admin-stat-total">0</span>
+            <span class="stat-name">Total Products</span>
+        </div>
+    </div>
+    <div class="stat-glass stat-stock">
+        <div class="stat-icon"><i class="fa-solid fa-check-circle"></i></div>
+        <div class="stat-info">
+            <span class="stat-value" id="admin-stat-stock">0</span>
+            <span class="stat-name">In Stock</span>
+        </div>
+    </div>
+    <div class="stat-glass stat-soon">
+        <div class="stat-icon"><i class="fa-solid fa-clock"></i></div>
+        <div class="stat-info">
+            <span class="stat-value" id="admin-stat-soon">0</span>
+            <span class="stat-name">Coming Soon</span>
+        </div>
+    </div>
+    <div class="stat-glass stat-out">
+        <div class="stat-icon"><i class="fa-solid fa-circle-xmark"></i></div>
+        <div class="stat-info">
+            <span class="stat-value" id="admin-stat-out">0</span>
+            <span class="stat-name">Out of Stock</span>
+        </div>
+    </div>
+    <div class="stat-glass stat-disc">
+        <div class="stat-icon"><i class="fa-solid fa-ban"></i></div>
+        <div class="stat-info">
+            <span class="stat-value" id="admin-stat-disc">0</span>
+            <span class="stat-name">Discontinued</span>
+        </div>
+    </div>
+</section>
+
+<!-- Products Table -->
+<section class="admin-table-section">
+    <div class="table-glass">
+        <div class="table-header">
+            <h2><i class="fa-solid fa-list"></i> Product Inventory</h2>
+            <div class="table-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="admin-search" placeholder="Search inventory...">
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="admin-table" id="admin-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Brand</th>
+                        <th>Category</th>
+                        <th>State</th>
+                        <th>Price</th>
+                        <th>Original</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-table-body">
+                    {% for product in products %}
+                    <tr data-id="{{ product.id }}" data-state="{{ product.state }}">
+                        <td class="td-product">
+                            <img src="{{ product.image_url or 'https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=100&h=100&fit=crop' }}" alt="" class="td-thumb">
+                            <div class="td-info">
+                                <span class="td-name">{{ product.name }}</span>
+                                <span class="td-url">{{ product.url or 'No URL' }}</span>
+                            </div>
+                        </td>
+                        <td>{{ product.brand }}</td>
+                        <td><span class="td-category">{{ product.category }}</span></td>
+                        <td>
+                            <span class="td-state state-{{ 'in-stock' if product.state == '{{price}}' else product.state.replace(' ', '-') }}">
+                                {% if product.state == '{{price}}' %}In Stock
+                                {% elif product.state == 'coming soon' %}Coming Soon
+                                {% elif product.state == 'out of stock' %}Out of Stock
+                                {% elif product.state == 'discontinued' %}Discontinued
+                                {% endif %}
+                            </span>
+                        </td>
+                        <td class="td-price">
+                            {% if product.price %}${{ "%.2f"|format(product.price) }}{% else %}-{% endif %}
+                        </td>
+                        <td class="td-original">
+                            {% if product.original_price %}${{ "%.2f"|format(product.original_price) }}{% else %}-{% endif %}
+                        </td>
+                        <td class="td-actions">
+                            <button class="action-icon edit-btn" data-id="{{ product.id }}" title="Edit">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button class="action-icon delete-btn" data-id="{{ product.id }}" title="Delete">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                            <a href="{{ url_for('product_detail', product_id=product.id) }}" class="action-icon" title="View">
+                                <i class="fa-solid fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- Add/Edit Product Modal -->
+<div class="modal-overlay" id="product-modal">
+    <div class="modal-glass">
+        <div class="modal-header">
+            <h2 id="modal-title"><i class="fa-solid fa-plus"></i> Add Product</h2>
+            <button class="modal-close" id="modal-close"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form class="modal-form" id="product-form">
+            <input type="hidden" id="product-id" value="">
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="p-name"><i class="fa-solid fa-tag"></i> Product Name</label>
+                    <input type="text" id="p-name" required placeholder="e.g. Sony WH-1000XM5">
+                </div>
+                <div class="form-group">
+                    <label for="p-brand"><i class="fa-solid fa-building"></i> Brand</label>
+                    <input type="text" id="p-brand" required placeholder="e.g. Sony">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="p-category"><i class="fa-solid fa-folder"></i> Category</label>
+                    <input type="text" id="p-category" placeholder="e.g. Audio" value="Tech">
+                </div>
+                <div class="form-group">
+                    <label for="p-state"><i class="fa-solid fa-signal"></i> State</label>
+                    <select id="p-state" required>
+                        <option value="coming soon">Coming Soon</option>
+                        <option value="{{price}}">{{price}}</option>
+                        <option value="out of stock">Out of Stock</option>
+                        <option value="discontinued">Discontinued</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="p-price"><i class="fa-solid fa-dollar-sign"></i> Current Price</label>
+                    <input type="number" id="p-price" step="0.01" min="0" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label for="p-original"><i class="fa-solid fa-tag"></i> Original Price</label>
+                    <input type="number" id="p-original" step="0.01" min="0" placeholder="0.00">
+                </div>
+            </div>
+
+            <div class="form-group full">
+                <label for="p-image"><i class="fa-solid fa-image"></i> Image URL</label>
+                <input type="url" id="p-image" placeholder="https://images.unsplash.com/...">
+            </div>
+
+            <div class="form-group full">
+                <label for="p-url"><i class="fa-solid fa-link"></i> Product URL (for automation)</label>
+                <input type="url" id="p-url" placeholder="https://store.example.com/product">
+            </div>
+
+            <div class="form-group full">
+                <label for="p-desc"><i class="fa-solid fa-align-left"></i> Description</label>
+                <textarea id="p-desc" rows="3" placeholder="Short product description..."></textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn-secondary" id="modal-cancel">Cancel</button>
+                <button type="submit" class="btn-primary">
+                    <i class="fa-solid fa-check"></i> Save Product
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" id="delete-modal">
+    <div class="modal-glass modal-small">
+        <div class="modal-header">
+            <h2><i class="fa-solid fa-triangle-exclamation"></i> Confirm Delete</h2>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete <strong id="delete-product-name">this product</strong>?</p>
+            <p class="modal-warning">This action cannot be undone. Price history will also be deleted.</p>
+        </div>
+        <div class="form-actions">
+            <button type="button" class="btn-secondary" id="delete-cancel">Cancel</button>
+            <button type="button" class="btn-danger" id="delete-confirm">
+                <i class="fa-solid fa-trash-can"></i> Delete
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast-container" id="toast-container"></div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}

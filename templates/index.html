@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}Tech Shelf | TechPrice{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-glass">
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="title-line">Track Tech.</span>
+                <span class="title-line accent">Save Money.</span>
+            </h1>
+            <p class="hero-subtitle">Frosted liquid glass product shelf with real-time price monitoring</p>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <span class="stat-num" id="stat-products">0</span>
+                    <span class="stat-label">Products</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-num" id="stat-tracking">0</span>
+                    <span class="stat-label">Tracking</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-num" id="stat-drops">0</span>
+                    <span class="stat-label">Price Drops</span>
+                </div>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="floating-card card-1">
+                <i class="fa-solid fa-headphones"></i>
+            </div>
+            <div class="floating-card card-2">
+                <i class="fa-solid fa-laptop"></i>
+            </div>
+            <div class="floating-card card-3">
+                <i class="fa-solid fa-mobile-screen"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Filter Bar -->
+<section class="filter-section">
+    <div class="filter-glass">
+        <div class="filter-group">
+            <button class="filter-btn active" data-filter="all">
+                <i class="fa-solid fa-layer-group"></i> All
+            </button>
+            <button class="filter-btn" data-filter="{{price}}">
+                <i class="fa-solid fa-check-circle"></i> In Stock
+            </button>
+            <button class="filter-btn" data-filter="coming soon">
+                <i class="fa-solid fa-clock"></i> Coming Soon
+            </button>
+            <button class="filter-btn" data-filter="out of stock">
+                <i class="fa-solid fa-circle-xmark"></i> Out of Stock
+            </button>
+            <button class="filter-btn" data-filter="discontinued">
+                <i class="fa-solid fa-ban"></i> Discontinued
+            </button>
+        </div>
+        <div class="search-group">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="search-input" placeholder="Search products..." autocomplete="off">
+        </div>
+    </div>
+</section>
+
+<!-- Product Grid -->
+<section class="products-section">
+    <div class="section-header">
+        <h2><i class="fa-solid fa-cube"></i> Product Shelf</h2>
+        <span class="product-count" id="product-count">Loading...</span>
+    </div>
+
+    <div class="products-grid" id="products-grid">
+        {% for product in products %}
+        <article class="product-card" data-state="{{ product.state }}" data-name="{{ product.name.lower() }}" data-brand="{{ product.brand.lower() }}">
+            <div class="card-glass">
+                <div class="card-image-wrapper">
+                    <img src="{{ product.image_url or 'https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=600&h=600&fit=crop' }}" 
+                         alt="{{ product.name }}" 
+                         class="card-image"
+                         loading="lazy">
+                    <div class="card-overlay"></div>
+
+                    <!-- State Badge -->
+                    <div class="state-badge state-{{ 'in-stock' if product.state == '{{price}}' else product.state.replace(' ', '-') }}">
+                        {% if product.state == '{{price}}' %}
+                            <i class="fa-solid fa-check-circle"></i> In Stock
+                        {% elif product.state == 'coming soon' %}
+                            <i class="fa-solid fa-clock"></i> Coming Soon
+                        {% elif product.state == 'out of stock' %}
+                            <i class="fa-solid fa-circle-xmark"></i> Out of Stock
+                        {% elif product.state == 'discontinued' %}
+                            <i class="fa-solid fa-ban"></i> Discontinued
+                        {% endif %}
+                    </div>
+
+                    <!-- Discount Badge -->
+                    {% if product.discount_percent > 0 and product.state == '{{price}}' %}
+                    <div class="discount-badge">
+                        <i class="fa-solid fa-arrow-trend-down"></i> -{{ product.discount_percent }}%
+                    </div>
+                    {% endif %}
+
+                    <!-- Quick Actions -->
+                    <div class="card-actions">
+                        <a href="{{ url_for('product_detail', product_id=product.id) }}" class="action-btn" title="View Details">
+                            <i class="fa-solid fa-eye"></i>
+                        </a>
+                        {% if product.url %}
+                        <a href="{{ product.url }}" target="_blank" class="action-btn" title="Visit Store">
+                            <i class="fa-solid fa-external-link"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="card-meta">
+                        <span class="card-brand">{{ product.brand }}</span>
+                        <span class="card-category">{{ product.category }}</span>
+                    </div>
+                    <h3 class="card-title">{{ product.name }}</h3>
+                    <p class="card-desc">{{ product.description or 'No description available.' }}</p>
+
+                    <div class="card-footer">
+                        <div class="price-block">
+                            {% if product.state == 'coming soon' %}
+                                <span class="price-coming-soon">Coming Soon</span>
+                            {% elif product.state == 'discontinued' %}
+                                <span class="price-discontinued">Discontinued</span>
+                            {% elif product.state == 'out of stock' %}
+                                <span class="price-out">${{ "%.2f"|format(product.price) }}</span>
+                                <span class="price-status">Out of Stock</span>
+                            {% else %}
+                                <span class="price-current">${{ "%.2f"|format(product.price) }}</span>
+                                {% if product.original_price and product.original_price > product.price %}
+                                    <span class="price-original">${{ "%.2f"|format(product.original_price) }}</span>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                        <a href="{{ url_for('product_detail', product_id=product.id) }}" class="card-btn">
+                            <span>Details</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" id="empty-state" style="display: none;">
+        <div class="empty-glass">
+            <i class="fa-solid fa-wind"></i>
+            <h3>No products found</h3>
+            <p>Try adjusting your filters or search query</p>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Animate stats on load
+    document.addEventListener('DOMContentLoaded', () => {
+        const products = document.querySelectorAll('.product-card');
+        const inStock = document.querySelectorAll('.product-card[data-state="{{price}}"]');
+        const withDiscount = document.querySelectorAll('.discount-badge');
+
+        animateValue('stat-products', 0, {{ products|length }}, 1000);
+        animateValue('stat-tracking', 0, {{ products|length }}, 1200);
+        animateValue('stat-drops', 0, withDiscount.length, 1400);
+
+        document.getElementById('product-count').textContent = products.length + ' items';
+    });
+
+    function animateValue(id, start, end, duration) {
+        const obj = document.getElementById(id);
+        if (!obj) return;
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            obj.innerHTML = Math.floor(progress * (end - start) + start);
+            if (progress < 1) window.requestAnimationFrame(step);
+        };
+        window.requestAnimationFrame(step);
+    }
+</script>
+{% endblock %}
