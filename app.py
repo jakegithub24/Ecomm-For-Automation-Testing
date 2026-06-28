@@ -41,6 +41,30 @@ else:
 db_url = os.environ.get('DATABASE_URL', default_db)
 if db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+# On Vercel, if we are using SQLite, we MUST use a file in /tmp (the only writable directory).
+# Copy the pre-seeded DB from the read-only workspace if it exists, so data isn't lost.
+if os.environ.get('VERCEL') and db_url.startswith('sqlite:///'):
+    db_filename = 'price_tracker.db'
+    if db_url.startswith('sqlite:////'):
+        db_filename = os.path.basename(db_url.replace('sqlite:////', ''))
+    elif db_url.startswith('sqlite:///'):
+        db_filename = db_url.replace('sqlite:///', '')
+
+    src_db = os.path.join(app.instance_path, db_filename)
+    dest_db = os.path.join('/tmp', db_filename)
+    
+    if os.path.exists(src_db) and not os.path.exists(dest_db):
+        import shutil
+        try:
+            os.makedirs(os.path.dirname(dest_db), exist_ok=True)
+            shutil.copy2(src_db, dest_db)
+            print(f"Copied database from {src_db} to {dest_db}")
+        except Exception as e:
+            print(f"Error copying database to /tmp: {e}")
+            
+    db_url = f"sqlite:///{dest_db}"
+
 app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -286,8 +310,13 @@ else:
         db_exists = False
 
 if not db_exists:
-    if is_sqlite and not os.path.exists(app.instance_path):
-        os.makedirs(app.instance_path, exist_ok=True)
+    if is_sqlite:
+        db_dir = os.path.dirname(db_path)
+        if db_dir and not os.path.exists(db_dir):
+            try:
+                os.makedirs(db_dir, exist_ok=True)
+            except Exception as e:
+                print(f"Warning: Could not create database directory {db_dir}: {e}")
     with app.app_context():
         db.create_all()
         try:
