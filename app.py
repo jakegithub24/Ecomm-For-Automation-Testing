@@ -81,151 +81,7 @@ class PriceHistory(db.Model):
 
 # ─── Seed Data ───
 
-def seed_data():
-    if Product.query.first() is None:
-        sample_products = [
-            Product(
-                name='Sony WH-1000XM5',
-                brand='Sony',
-                description='Industry-leading noise canceling wireless headphones with 30-hour battery life.',
-                price=348.00,
-                original_price=399.99,
-                state='In Stock',
-                image_url='https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=600&h=600&fit=crop',
-                category='Audio',
-                url='https://www.sony.com/headphones'
-            ),
-            Product(
-                name='MacBook Pro 14" M3',
-                brand='Apple',
-                description='Supercharged by M3 chip. Up to 22 hours battery life. Stunning Liquid Retina XDR display.',
-                price=1599.00,
-                original_price=1799.00,
-                state='In Stock',
-                image_url='https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&h=600&fit=crop',
-                category='Laptops',
-                url='https://www.apple.com/macbook-pro'
-            ),
-            Product(
-                name='Samsung Galaxy S24 Ultra',
-                brand='Samsung',
-                description='AI-powered smartphone with 200MP camera and S Pen built-in.',
-                price=1099.99,
-                original_price=1299.99,
-                state='In Stock',
-                image_url='https://images.unsplash.com/photo-1610792516320-2d1261a04f11?w=600&h=600&fit=crop',
-                category='Phones',
-                url='https://www.samsung.com/galaxy-s24-ultra'
-            ),
-            Product(
-                name='Steam Deck OLED',
-                brand='Valve',
-                description='Handheld gaming console with HDR OLED display. 512GB storage.',
-                price=549.00,
-                original_price=549.00,
-                state='out of stock',
-                image_url='https://images.unsplash.com/photo-1592840496694-26d035b52b48?w=600&h=600&fit=crop',
-                category='Gaming',
-                url='https://www.steamdeck.com'
-            ),
-            Product(
-                name='Vision Pro',
-                brand='Apple',
-                description='Spatial computer that seamlessly blends digital content with your physical space.',
-                price=3499.00,
-                original_price=3499.00,
-                state='coming soon',
-                image_url='https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?w=600&h=600&fit=crop',
-                category='VR/AR',
-                url='https://www.apple.com/vision-pro'
-            ),
-            Product(
-                name='Canon EOS R5',
-                brand='Canon',
-                description='Professional mirrorless camera with 45MP full-frame sensor and 8K video.',
-                price=2899.00,
-                original_price=3899.00,
-                state='discontinued',
-                image_url='https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=600&h=600&fit=crop',
-                category='Cameras',
-                url='https://www.canon.com/eos-r5'
-            ),
-            Product(
-                name='DJI Mini 4 Pro',
-                brand='DJI',
-                description='Lightweight drone with 4K/60fps HDR video and omnidirectional obstacle sensing.',
-                price=759.00,
-                original_price=799.00,
-                state='In Stock',
-                image_url='https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=600&h=600&fit=crop',
-                category='Drones',
-                url='https://www.dji.com/mini-4-pro'
-            ),
-            Product(
-                name='PlayStation 5 Pro',
-                brand='Sony',
-                description='The most powerful PlayStation ever. 8K gaming support. Wi-Fi 7.',
-                price=699.99,
-                original_price=699.99,
-                state='coming soon',
-                image_url='https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=600&h=600&fit=crop',
-                category='Gaming',
-                url='https://www.playstation.com/ps5-pro'
-            ),
-            Product(
-                name='iPad Pro 12.9" M2',
-                brand='Apple',
-                description='The ultimate iPad experience with M2 chip and Liquid Retina XDR display.',
-                price=1099.00,
-                original_price=1299.00,
-                state='In Stock',
-                image_url='https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=600&h=600&fit=crop',
-                category='Tablets',
-                url='https://www.apple.com/ipad-pro'
-            ),
-            Product(
-                name='NVIDIA RTX 4090',
-                brand='NVIDIA',
-                description='The ultimate GeForce GPU. 24GB G6X memory for extreme gaming and creating.',
-                price=1599.00,
-                original_price=1999.00,
-                state='out of stock',
-                image_url='https://images.unsplash.com/photo-1591488320449-011701bb6704?w=600&h=600&fit=crop',
-                category='Components',
-                url='https://www.nvidia.com/rtx-4090'
-            ),
-            Product(
-                name='Logitech MX Master 3S',
-                brand='Logitech',
-                description='Ultra-fast and precise wireless mouse with 8K DPI sensor.',
-                price=89.99,
-                original_price=99.99,
-                state='In Stock',
-                image_url='https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=600&h=600&fit=crop',
-                category='Peripherals',
-                url='https://www.logitech.com/mx-master-3s'
-            ),
-            Product(
-                name='Keychron Q1 Pro',
-                brand='Keychron',
-                description='Wireless custom mechanical keyboard with QMK/VIA support and aluminum body.',
-                price=199.00,
-                original_price=219.00,
-                state='In Stock',
-                image_url='https://images.unsplash.com/photo-1595225476474-87563907a212?w=600&h=600&fit=crop',
-                category='Peripherals',
-                url='https://www.keychron.com/q1-pro'
-            )
-        ]
 
-        for p in sample_products:
-            db.session.add(p)
-            db.session.flush()  # Get ID without committing
-            if p.price:
-                db.session.add(PriceHistory(product_id=p.id, price=p.price))
-
-        db.session.commit()
-        print("Database seeded with sample products.")
 
 # ─── Routes ───
 
@@ -392,9 +248,38 @@ def health_check():
 
 # ─── Initialize ───
 
-with app.app_context():
-    db.create_all()
-    seed_data()
+db_uri = app.config['SQLALCHEMY_DATABASE_URI']
+is_sqlite = db_uri.startswith('sqlite:///')
+db_exists = False
+
+if is_sqlite:
+    db_file = db_uri.replace('sqlite:///', '')
+    if not os.path.isabs(db_file):
+        db_path = os.path.join(app.instance_path, db_file)
+    else:
+        db_path = db_file
+    db_exists = os.path.exists(db_path)
+else:
+    try:
+        with app.app_context():
+            Product.query.first()
+        db_exists = True
+    except Exception:
+        db_exists = False
+
+if not db_exists:
+    if is_sqlite and not os.path.exists(app.instance_path):
+        os.makedirs(app.instance_path, exist_ok=True)
+    with app.app_context():
+        db.create_all()
+        try:
+            from data_seeder import seed
+            seed()
+        except ImportError:
+            print("data_seeder.py not found or failed to import on first boot.")
+else:
+    with app.app_context():
+        db.create_all()
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
