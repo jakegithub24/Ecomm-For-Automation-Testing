@@ -62,7 +62,13 @@ python app.py
 ```
 By default, the server runs on [http://localhost:5000](http://localhost:5000).
 
----
+### 5. Deploying to Vercel
+The application is pre-configured for production hosting on Vercel:
+* **WSGI Gateway**: [wsgi.py](file:///home/parrot/Downloads/price_tracker_app/wsgi.py) exposes the app handler as a WSGI serverless function.
+* **Routing**: [vercel.json](file:///home/parrot/Downloads/price_tracker_app/vercel.json) routes all traffic to the WSGI function.
+* **Configuration**: Set your production variables (e.g. `SECRET_KEY`, `ADMIN_USERNAME`, and `ADMIN_PASSWORD_HASH`) in the Vercel Project Settings.
+* **Database**: Set `DATABASE_URL` to connect to an external production database (e.g. Postgres). If left blank, SQLite falls back to `/tmp/price_tracker.db` (read-only filesystem bypass).
+
 
 ## 🔐 Administrative Access
 

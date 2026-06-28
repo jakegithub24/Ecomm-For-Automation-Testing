@@ -31,7 +31,14 @@ def login_required(f):
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///price_tracker.db')
+
+# Setup database fallback path for Vercel read-only filesystem
+if os.environ.get('VERCEL'):
+    default_db = 'sqlite:////tmp/price_tracker.db'
+else:
+    default_db = 'sqlite:///price_tracker.db'
+
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', default_db)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
