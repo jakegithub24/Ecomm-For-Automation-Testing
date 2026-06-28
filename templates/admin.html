@@ -97,8 +97,8 @@
                         <td>{{ product.brand }}</td>
                         <td><span class="td-category">{{ product.category }}</span></td>
                         <td>
-                            <span class="td-state state-{{ 'in-stock' if product.state == '{{price}}' else product.state.replace(' ', '-') }}">
-                                {% if product.state == '{{price}}' %}In Stock
+                            <span class="td-state state-{{ product.state.lower().replace(' ', '-') }}">
+                                {% if product.state == 'In Stock' %}In Stock
                                 {% elif product.state == 'coming soon' %}Coming Soon
                                 {% elif product.state == 'out of stock' %}Out of Stock
                                 {% elif product.state == 'discontinued' %}Discontinued
@@ -160,7 +160,7 @@
                     <label for="p-state"><i class="fa-solid fa-signal"></i> State</label>
                     <select id="p-state" required>
                         <option value="coming soon">Coming Soon</option>
-                        <option value="{{price}}">{{price}}</option>
+                        <option value="In Stock">In Stock</option>
                         <option value="out of stock">Out of Stock</option>
                         <option value="discontinued">Discontinued</option>
                     </select>

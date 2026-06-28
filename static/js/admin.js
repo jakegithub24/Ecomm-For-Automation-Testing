@@ -27,7 +27,7 @@ function initAdminStats() {
 
     rows.forEach(row => {
         const state = row.dataset.state;
-        if (state === '{{price}}' || state === 'in_stock') stock++;
+        if (state === 'In Stock' || state === '{{price}}' || state === 'in_stock') stock++;
         else if (state === 'coming soon' || state === 'coming_soon') soon++;
         else if (state === 'out of stock' || state === 'out_of_stock') out++;
         else if (state === 'discontinued') disc++;

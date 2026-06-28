@@ -48,7 +48,7 @@
             <button class="filter-btn active" data-filter="all">
                 <i class="fa-solid fa-layer-group"></i> All
             </button>
-            <button class="filter-btn" data-filter="{{price}}">
+            <button class="filter-btn" data-filter="In Stock">
                 <i class="fa-solid fa-check-circle"></i> In Stock
             </button>
             <button class="filter-btn" data-filter="coming soon">
@@ -87,8 +87,8 @@
                     <div class="card-overlay"></div>
 
                     <!-- State Badge -->
-                    <div class="state-badge state-{{ 'in-stock' if product.state == '{{price}}' else product.state.replace(' ', '-') }}">
-                        {% if product.state == '{{price}}' %}
+                    <div class="state-badge state-{{ product.state.lower().replace(' ', '-') }}">
+                        {% if product.state == 'In Stock' %}
                             <i class="fa-solid fa-check-circle"></i> In Stock
                         {% elif product.state == 'coming soon' %}
                             <i class="fa-solid fa-clock"></i> Coming Soon
@@ -100,7 +100,7 @@
                     </div>
 
                     <!-- Discount Badge -->
-                    {% if product.discount_percent > 0 and product.state == '{{price}}' %}
+                    {% if product.discount_percent > 0 and product.state == 'In Stock' %}
                     <div class="discount-badge">
                         <i class="fa-solid fa-arrow-trend-down"></i> -{{ product.discount_percent }}%
                     </div>
@@ -170,7 +170,7 @@
     // Animate stats on load
     document.addEventListener('DOMContentLoaded', () => {
         const products = document.querySelectorAll('.product-card');
-        const inStock = document.querySelectorAll('.product-card[data-state="{{price}}"]');
+        const inStock = document.querySelectorAll('.product-card[data-state="In Stock"]');
         const withDiscount = document.querySelectorAll('.discount-badge');
 
         animateValue('stat-products', 0, {{ products|length }}, 1000);

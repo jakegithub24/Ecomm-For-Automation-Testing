@@ -38,7 +38,7 @@ class Product(db.Model):
     description = db.Column(db.Text, nullable=True)
     price = db.Column(db.Float, nullable=True)
     original_price = db.Column(db.Float, nullable=True)
-    state = db.Column(db.String(50), default='coming soon')  # coming soon, {{price}}, out of stock, discontinued
+    state = db.Column(db.String(50), default='coming soon')  # coming soon, In Stock, out of stock, discontinued
     image_url = db.Column(db.String(500), nullable=True)
     category = db.Column(db.String(100), default='Tech')
     url = db.Column(db.String(500), nullable=True)  # e-commerce page URL
@@ -90,7 +90,7 @@ def seed_data():
                 description='Industry-leading noise canceling wireless headphones with 30-hour battery life.',
                 price=348.00,
                 original_price=399.99,
-                state='{{price}}',
+                state='In Stock',
                 image_url='https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=600&h=600&fit=crop',
                 category='Audio',
                 url='https://www.sony.com/headphones'
@@ -101,7 +101,7 @@ def seed_data():
                 description='Supercharged by M3 chip. Up to 22 hours battery life. Stunning Liquid Retina XDR display.',
                 price=1599.00,
                 original_price=1799.00,
-                state='{{price}}',
+                state='In Stock',
                 image_url='https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&h=600&fit=crop',
                 category='Laptops',
                 url='https://www.apple.com/macbook-pro'
@@ -112,7 +112,7 @@ def seed_data():
                 description='AI-powered smartphone with 200MP camera and S Pen built-in.',
                 price=1099.99,
                 original_price=1299.99,
-                state='{{price}}',
+                state='In Stock',
                 image_url='https://images.unsplash.com/photo-1610792516320-2d1261a04f11?w=600&h=600&fit=crop',
                 category='Phones',
                 url='https://www.samsung.com/galaxy-s24-ultra'
@@ -156,7 +156,7 @@ def seed_data():
                 description='Lightweight drone with 4K/60fps HDR video and omnidirectional obstacle sensing.',
                 price=759.00,
                 original_price=799.00,
-                state='{{price}}',
+                state='In Stock',
                 image_url='https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=600&h=600&fit=crop',
                 category='Drones',
                 url='https://www.dji.com/mini-4-pro'
@@ -178,7 +178,7 @@ def seed_data():
                 description='The ultimate iPad experience with M2 chip and Liquid Retina XDR display.',
                 price=1099.00,
                 original_price=1299.00,
-                state='{{price}}',
+                state='In Stock',
                 image_url='https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=600&h=600&fit=crop',
                 category='Tablets',
                 url='https://www.apple.com/ipad-pro'
@@ -200,7 +200,7 @@ def seed_data():
                 description='Ultra-fast and precise wireless mouse with 8K DPI sensor.',
                 price=89.99,
                 original_price=99.99,
-                state='{{price}}',
+                state='In Stock',
                 image_url='https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=600&h=600&fit=crop',
                 category='Peripherals',
                 url='https://www.logitech.com/mx-master-3s'
@@ -211,7 +211,7 @@ def seed_data():
                 description='Wireless custom mechanical keyboard with QMK/VIA support and aluminum body.',
                 price=199.00,
                 original_price=219.00,
-                state='{{price}}',
+                state='In Stock',
                 image_url='https://images.unsplash.com/photo-1595225476474-87563907a212?w=600&h=600&fit=crop',
                 category='Peripherals',
                 url='https://www.keychron.com/q1-pro'
