@@ -18,6 +18,7 @@ TechPrice is a modern, premium, glassmorphic (Frosted Liquid Glass) e-commerce p
 * **Argon2id Authentication**: Secure session-gated admin console using industrial-grade password hashing (via `argon2-cffi`).
 * **First-Boot Auto-Seeding**: Checks database existence on launch and automatically seeds standard database items if missing.
 * **Environment Configuration**: Robust `.env` variable control for ports, debug states, database URIs, and credentials.
+* **Price Change Automation**: Simulates live price updates and inventory state changes automatically using a headless Selenium script.
 
 ---
 
@@ -69,6 +70,21 @@ The application is pre-configured for production hosting on Vercel:
 * **Configuration**: Set your production variables (e.g. `SECRET_KEY`, `ADMIN_USERNAME`, and `ADMIN_PASSWORD_HASH`) in the Vercel Project Settings.
 * **Database**: Set `DATABASE_URL` to connect to an external production database (e.g. Postgres). If left blank, SQLite falls back to `/tmp/price_tracker.db` (read-only filesystem bypass).
 
+### 6. Price Change Automation
+A Selenium-based automation script is included to simulate real-world e-commerce price updates by periodically logging in as admin and randomizing product prices and inventory states.
+
+To run the automation:
+1. Install dependencies:
+   ```bash
+   pip install -r Price-Change-Automation/requirements.txt
+   ```
+2. Run the script, pointing it to your application URL:
+   ```bash
+   python Price-Change-Automation/price_change_script.py -u http://localhost:5000
+   ```
+   Add `--headless` if you prefer to run it in the background without opening a physical Firefox window.
+   For more details, see the dedicated [Price-Change-Automation README](file:///home/parrot/Downloads/price_tracker_app/Price-Change-Automation/README.md).
+
 
 ## 🔐 Administrative Access
 
@@ -81,8 +97,12 @@ Navigate to `/admin` or click **Admin Console** in the navigation bar to login.
 
 ## 📁 Project Structure
 
-* `app.py` — Flask routes, controller APIs, and models
-* `data_seeder.py` — Standalone script to initialize and populate initial products
+* [app.py](file:///home/parrot/Downloads/price_tracker_app/app.py) — Flask routes, controller APIs, and models
+* [data_seeder.py](file:///home/parrot/Downloads/price_tracker_app/data_seeder.py) — Standalone script to initialize and populate initial products
+* `Price-Change-Automation/` — Automation components for price fluctuations
+  * [price_change_script.py](file:///home/parrot/Downloads/price_tracker_app/Price-Change-Automation/price_change_script.py) — Selenium script to automate admin edits
+  * [requirements.txt](file:///home/parrot/Downloads/price_tracker_app/Price-Change-Automation/requirements.txt) — Selenium and webdriver-manager packages
+  * [README.md](file:///home/parrot/Downloads/price_tracker_app/Price-Change-Automation/README.md) — Automation documentation
 * `static/`
   * `css/style.css` — Liquid glass styling guidelines and layouts
   * `js/main.js` — Landing interactions, mobile menus, and filter logic
